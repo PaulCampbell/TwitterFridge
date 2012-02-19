@@ -12,11 +12,13 @@ var express = require('express')
     MemoryStore = express.session.MemoryStore,
     app = express.createServer(),
     sessionStore = new MemoryStore();
-
+var FridgeProvider = require('./fridgeprovider').FridgeProvider;
 
 var twit = new twitter();
 
 var app = module.exports = express.createServer();
+
+var fridgeProvider = new FridgeProvider('localhost', 27017);
 
 // Configuration
 
@@ -24,6 +26,7 @@ app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
   app.set('twitter', twit);
+  app.set('fridgeProvider', fridgeProvider);
   app.set('underscore', _und);
   app.use(express.bodyParser());
   app.use(express.methodOverride());
@@ -47,8 +50,8 @@ app.configure('production', function(){
 // Routes
 
 app.get('/', routes.index);
-app.get('/fridge', routes.fridge);
-app.get('/fridge/1.json', routes.fridgejson);
+app.get('/fridge/:id', routes.fridge);
+app.get('/api/fridge/:id', routes.fridgejson);
 
 app.listen(3000);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
@@ -87,7 +90,7 @@ sio.sockets.on('connection', function (socket) {
     socket.on('letter_moved', function (data) {
       console.log(data);
       // update database - send to clients
-      sio.sockets.emit('letter_position_update', data);
+      socket.broadcast.emit('letter_position_update', data);
     });
 
 });

@@ -16,15 +16,17 @@ var socket = io.connect('http://localhost');
   });
 
   socket.on('letter_position_update', function(data) {
- var letterDiv = $('div[data-sid="' + data.payload.id + '"]:first');
+console.log(    data
+);
+ var letterDiv = $('div[data-sid="' + data.payload._id + '"]:first');
     var moveToX, moveToY;
-    moveToX =  data.payload.x ;
-    moveToY =  data.payload.y ;
-    $('div[data-sid="' + data.payload.id + '"]')
+    moveToX =  data.payload.x - letterDiv.position().left;
+    moveToY =  data.payload.y - letterDiv.position().top;
+    $('div[data-sid="' + data.payload._id + '"]')
     .animate({
         left: moveToX ,
         top: moveToY
-      }, 3000, function() {
+      }, 1000, function() {
         // Animation complete.
       });;
 
@@ -36,8 +38,9 @@ var socket = io.connect('http://localhost');
 
 
 $(document).ready(function(){
+  var fid = window.location.pathname.substring( window.location.pathname.lastIndexOf('/')+1);
   $.ajax({
-    url: 'http://localhost:3000/fridge/1.json',
+    url: '/api/fridge/' + fid,
     dataType: 'json',
     success: function(data){
      console.log(data);
@@ -61,14 +64,14 @@ $(document).ready(function(){
 function LetterDropped(event, ui) {
           console.log(event);
           var letterID = ui.draggable.attr('data-sid');
-          var letter= {id: letterID, x: ui.draggable.position().left, y: ui.draggable.position().top};
+          var letter= {_id: letterID, x: ui.draggable.position().left, y: ui.draggable.position().top};
           UpdateLetter(letter);
 
         }
 
 function PlaceLetter(letter){
   console.log('placing letter')
-  $('#fridge-door').append($('<div data-sid="' + letter.id + '" class="letter ' + letter.color + '">' + letter.value + '</div>'))
+  $('#fridge-door').append($('<div data-sid="' + letter._id + '" class="letter ' + letter.color + '">' + letter.value + '</div>'))
 };
 
 function UpdateLetter(letter){
