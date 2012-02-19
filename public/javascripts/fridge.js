@@ -6,6 +6,34 @@
  * To change this template use File | Settings | File Templates.
  */
 
+var socket = io.connect('http://localhost');
+  socket.on('new_user', function (data) {
+    console.log(data);
+  });
+
+  socket.on('new_user', function (data) {
+    console.log(data);
+  });
+
+  socket.on('letter_position_update', function(data) {
+ var letterDiv = $('div[data-sid="' + data.payload.id + '"]:first');
+    var moveToX, moveToY;
+    moveToX =  data.payload.x ;
+    moveToY =  data.payload.y ;
+    $('div[data-sid="' + data.payload.id + '"]')
+    .animate({
+        left: moveToX ,
+        top: moveToY
+      }, 3000, function() {
+        // Animation complete.
+      });;
+
+
+
+  });
+
+
+
 
 $(document).ready(function(){
   $.ajax({
@@ -19,15 +47,10 @@ $(document).ready(function(){
           PlaceLetter(l);
       });
 
-      $( ".letter" ).draggable({ containment: 'parent',
-        stop: function(event, ui) {
-          console.log(event);
-          var letterID = $(this).attr('data-sid');
-          var letter= {id: letterID, x: event.clientX, y:event.clientY};
-          UpdateLetter(letter);
-
-        }
-      });
+      $( ".letter" ).draggable({ containment: 'parent'});
+      $('body').droppable( {
+           drop: LetterDropped
+         });
     }
   });
 
@@ -35,13 +58,21 @@ $(document).ready(function(){
 
 });
 
+function LetterDropped(event, ui) {
+          console.log(event);
+          var letterID = ui.draggable.attr('data-sid');
+          var letter= {id: letterID, x: ui.draggable.position().left, y: ui.draggable.position().top};
+          UpdateLetter(letter);
+
+        }
 
 function PlaceLetter(letter){
   console.log('placing letter')
-  $('#fridge-door').append($('<div class="letter ' + letter.color + '">' + letter.value + '</div>'))
+  $('#fridge-door').append($('<div data-sid="' + letter.id + '" class="letter ' + letter.color + '">' + letter.value + '</div>'))
 };
 
 function UpdateLetter(letter){
   console.log('placing letter - sending... ' + letter);
+  socket.emit('letter_moved', { payload: letter });
 
 };

@@ -4,6 +4,9 @@
 
 var colors = ['red','yellow', 'green', 'blue'];
 
+
+
+
 exports.index = function(req, res){
   res.render('index', {
     title: 'Home'
@@ -25,9 +28,11 @@ var _und = req.app.settings['underscore'];
       fridge1.letters = [];
 
       var l = data.text.split('');
+    var i = 1;
       _und.each(l, function(letter){
         var color = colors[Math.floor(Math.random()*colors.length)];
-        fridge1.letters.push({value:letter, x:0, y:0, color:color })
+        fridge1.letters.push({value:letter, x:0, y:0, color:color, id:i })
+        i++;
       });
 
       fridge1.id = data.id_str;
