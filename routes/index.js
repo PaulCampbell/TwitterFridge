@@ -1,16 +1,14 @@
 /*
  * GET home page.
  */
-var mongo = require('mongodb');
 var  twitter = require('twitter');
 var colors = ['red','yellow', 'green', 'blue'];
 var tweet = new twitter();
 var _und = require("underscore");
-var FridgeProvider = require('./../fridgeprovider').FridgeProvider;
 
 
 
-var fridgeProvider = new FridgeProvider('localhost', 27017);
+
 
 exports.index = function(req, res){
   res.render('index', {
@@ -30,6 +28,7 @@ exports.fridge = function(req, res){
 
 
 exports.fridgejson = function(req,res){
+  var fridgeProvider = req.app.settings['fridgeProvider'];
   var fridge;
   console.log(req.params.id);
 

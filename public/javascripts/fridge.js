@@ -48,6 +48,7 @@ $(document).ready(function(){
 
       _.each(fridge.letters, function(l){
           PlaceLetter(l);
+        AddLetterNoise(l.id);
       });
 
       $( ".letter" ).draggable({ containment: 'parent'});
@@ -64,7 +65,7 @@ $(document).ready(function(){
 function LetterDropped(event, ui) {
           console.log(event);
           var letterID = ui.draggable.attr('data-sid');
-          var letter= {id: letterID, x: ui.draggable.position().left, y: ui.draggable.position().top};
+          var letter= {tweet_id: 171712426067243009,id: letterID, x: ui.draggable.position().left, y: ui.draggable.position().top};
           UpdateLetter(letter);
 
         }
@@ -86,7 +87,6 @@ function UpdateLetter(letter){
 function AddLetterNoise(letterId)
 {
   var rotateCSS = 'rotate(' + ((Math.random() * (15)) - 7.5) + 'deg)';
-
   $('[data-sid="' + letterId +  '"]').css({'-moz-transform': rotateCSS,
         '-webkit-transform': rotateCSS});
 };

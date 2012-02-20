@@ -11,20 +11,26 @@ var express = require('express')
     app = express.createServer(),
     sessionStore = new MemoryStore();
 
+var _und = require("underscore");
+
+var FridgeProvider = require('./fridgeprovider').FridgeProvider;
+
 
 
 var app = module.exports = express.createServer();
 
+var fridgeProvider = new FridgeProvider('localhost', 27017);
 
 // Configuration
 
 app.configure(function(){
   app.set('views', __dirname + '/views');
   app.set('view engine', 'jade');
+  app.set('fridgeProvider', fridgeProvider);
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(express.cookieParser());
-      app.use(express.session({store: sessionStore
+  app.use(express.session({store: sessionStore
           , secret: 'secret'
           , key: 'express.sid'}));
   app.use(require('stylus').middleware({ src: __dirname + '/public' }));
@@ -79,6 +85,18 @@ sio.sockets.on('connection', function (socket) {
     socket.on('letter_moved', function (data) {
       console.log(data);
       // update database - send to clients
+      fridgeProvider.find({tweet_id:data.payload.tweet_id.toString()},function(error, fridge){
+
+          if(fridge){
+        var theLetter = _und.first(fridge.letters, function(l){ return l.id == data.payload.id});
+        theLetter.x = data.payload.x; theLetter.y = data.payload.y;
+
+        fridgeProvider.save([fridge],function(error, fridges){
+          console.log(error);
+        });
+          }
+      });
+
       socket.broadcast.emit('letter_position_update', data);
     });
 
