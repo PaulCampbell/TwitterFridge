@@ -12,14 +12,14 @@ a {
   Border-radius: 4px;
 }
 .letter {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   float: left;
   font-family: 'Francois One', sans-serif;
   font-size: 65px;
   margin-bottom: 35px;
   color: #008000;
-  text-shadow: 2px 2px 2px #333;
+  text-shadow: 1px 2px 2px #333;
 }
 .red {
   color: #f00;

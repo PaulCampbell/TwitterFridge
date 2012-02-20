@@ -1,11 +1,16 @@
 /*
  * GET home page.
  */
-
+var mongo = require('mongodb');
+var  twitter = require('twitter');
 var colors = ['red','yellow', 'green', 'blue'];
+var tweet = new twitter();
+var _und = require("underscore");
+var FridgeProvider = require('./../fridgeprovider').FridgeProvider;
 
 
 
+var fridgeProvider = new FridgeProvider('localhost', 27017);
 
 exports.index = function(req, res){
   res.render('index', {
@@ -20,43 +25,52 @@ exports.fridge = function(req, res){
     });
 };
 
+
+
+
+
 exports.fridgejson = function(req,res){
   var fridge;
   console.log(req.params.id);
 
-  /*
-  req.app.settings['fridgeProvider'].findById(1, function(f){
+  fridgeProvider.find({tweet_id: req.params.id.toString()}, function(error, f){
+    console.log('fridge found: ' + f);
     fridge = f;
-  })
-  */
+    if(!fridge)
+    {
+      tweet.get('/statuses/show/' + req.params.id + '.json', {include_entities:false}, function(data) {
+          // blocking -> push this down a socket
+        console.log(data);
+          if(data.text)
+          {
 
-  if(!fridge)
-  {
-    req.app.settings['twitter'].get('/statuses/show/' + req.params.id + '.json', {include_entities:false}, function(data) {
-      // blocking -> push this down a socket
-        var _und = req.app.settings['underscore'];
-        fridge = {};
-      fridge.letters = [];
+          fridge = {};
+          fridge.letters = [];
+          var l = data.text.split('');
+          var i = 1;
+          _und.each(l, function(letter){
+            var color = colors[Math.floor(Math.random()*colors.length)];
+            fridge.letters.push({value:letter, x:0, y:0, color:color, id:i })
+            i++;
+          });
 
-        var l = data.text.split('');
-        var i = 1;
-        _und.each(l, function(letter){
-          var color = colors[Math.floor(Math.random()*colors.length)];
-          fridge.letters.push({value:letter, x:0, y:0, color:color, _id:i })
-          i++;
-        });
+          fridge.tweet_id =data.id_str;
+          fridge.twitter_user = data.user;
 
-      fridge.id = data.id_str;
-      fridge.twitter_user = data.user;
+            fridgeProvider.save([fridge],function(error, fridges){
+              res.json(fridge);
+          })
 
-      req.app.settings['fridgeProvider'].save(fridge, function(f){
-          console.log(fridge);
-          res.json(fridge);
-        })
+          }
 
+      });
+    }
+    else
+    {
+      res.json(fridge);
+    }
 
-    });
-  }
+    })
 
 
 };

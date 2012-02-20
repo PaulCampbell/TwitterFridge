@@ -12,7 +12,7 @@ var BSON = require('mongodb').BSON;
 var ObjectID = require('mongodb').ObjectID;
 
 FridgeProvider = function(host, port) {
-  this.db= new Db('node-mongo-blog', new Server(host, port, {auto_reconnect: true}, {}));
+  this.db= new Db('node-mongo-fridge', new Server(host, port, {auto_reconnect: true}, {}));
   this.db.open(function(){});
 };
 
@@ -49,9 +49,26 @@ FridgeProvider.prototype.findById = function(id, callback) {
     });
 };
 
+FridgeProvider.prototype.find = function(hash, callback) {
+  this.getCollection(function(error, fridge_collection) {
+        if( error ) callback(error)
+        else {
+          fridge_collection.findOne(hash, function(error, result) {
+            if( error ) callback(error)
+            else callback(null, result)
+          });
+        }
+      });
+};
+
+
 FridgeProvider.prototype.save = function(fridges, callback) {
     this.getCollection(function(error, fridge_collection) {
-      if( error ) callback(error)
+
+      if( error )
+      {
+        callback(error);
+      }
       else {
         if( typeof(fridges.length)=="undefined")
           fridges = [fridges];
@@ -59,10 +76,8 @@ FridgeProvider.prototype.save = function(fridges, callback) {
         for( var i =0;i< fridges.length;i++ ) {
           fridge = fridges[i];
           fridge.created_at = new Date();
-          if( fridge.comments === undefined ) fridge.comments = [];
-          for(var j =0;j< fridge.comments.length; j++) {
-            fridge.comments[j].created_at = new Date();
-          }
+          if( fridge.letters === undefined ) fridge.letters = [];
+
         }
 
         fridge_collection.insert(fridges, function() {

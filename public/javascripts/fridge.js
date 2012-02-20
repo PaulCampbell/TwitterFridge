@@ -18,11 +18,11 @@ var socket = io.connect('http://localhost');
   socket.on('letter_position_update', function(data) {
 console.log(    data
 );
- var letterDiv = $('div[data-sid="' + data.payload._id + '"]:first');
+ var letterDiv = $('div[data-sid="' + data.payload.id + '"]:first');
     var moveToX, moveToY;
     moveToX =  data.payload.x - letterDiv.position().left;
     moveToY =  data.payload.y - letterDiv.position().top;
-    $('div[data-sid="' + data.payload._id + '"]')
+    $('div[data-sid="' + data.payload.id + '"]')
     .animate({
         left: moveToX ,
         top: moveToY
@@ -64,18 +64,29 @@ $(document).ready(function(){
 function LetterDropped(event, ui) {
           console.log(event);
           var letterID = ui.draggable.attr('data-sid');
-          var letter= {_id: letterID, x: ui.draggable.position().left, y: ui.draggable.position().top};
+          var letter= {id: letterID, x: ui.draggable.position().left, y: ui.draggable.position().top};
           UpdateLetter(letter);
 
         }
 
 function PlaceLetter(letter){
   console.log('placing letter')
-  $('#fridge-door').append($('<div data-sid="' + letter._id + '" class="letter ' + letter.color + '">' + letter.value + '</div>'))
+  $('#fridge-door').append($('<div data-sid="' + letter.id + '" class="letter ' + letter.color + '">' + letter.value + '</div>'))
+  AddLetterNoise(letter.id);
 };
 
 function UpdateLetter(letter){
+  AddLetterNoise(letter.id);
   console.log('placing letter - sending... ' + letter);
   socket.emit('letter_moved', { payload: letter });
 
+};
+
+
+function AddLetterNoise(letterId)
+{
+  var rotateCSS = 'rotate(' + ((Math.random() * (15)) - 7.5) + 'deg)';
+
+  $('[data-sid="' + letterId +  '"]').css({'-moz-transform': rotateCSS,
+        '-webkit-transform': rotateCSS});
 };
