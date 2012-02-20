@@ -46,6 +46,8 @@ $(document).ready(function(){
      console.log(data);
       var fridge = data;
 
+      $('#tweet-info').html(data.tweet.user.screen_name);
+      $('#tweet-info').append(data.tweet.user.geo);
       _.each(fridge.letters, function(l){
           PlaceLetter(l);
         AddLetterNoise(l.id);

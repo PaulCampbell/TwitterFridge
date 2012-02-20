@@ -54,7 +54,8 @@ exports.fridgejson = function(req,res){
           });
 
           fridge.tweet_id =data.id_str;
-          fridge.twitter_user = data.user;
+
+            fridge.tweet = data;
 
             fridgeProvider.save([fridge],function(error, fridges){
               res.json(fridge);
